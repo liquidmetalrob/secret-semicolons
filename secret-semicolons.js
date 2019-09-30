@@ -3,11 +3,8 @@
 import { CompositeDisposable } from 'atom'
 const $ = require('jquery')
 var ext, _editor_
-var keys_before = {
-  'ArrowLeft': 1,
-  'ArrowUp': 1,
-  'ArrowDown': 1,
-  'End': 1,
+var keys_after = {
+  'ArrowRight': 1,
 }
 
 export default {
@@ -29,11 +26,8 @@ export default {
       atom.commands.onDidDispatch(function(e) {
         if (ext == 'css') {
           var new_ = _editor_.getCursorBufferPosition()
-          if (e.originalEvent.key in keys_before) {
-            self.handle_position(_editor_, new_, 1)
-          } else {
-            self.handle_position(_editor_, new_)
-          }
+          var after = e.originalEvent.key in keys_after
+          self.handle_position(_editor_, new_, after)
         }
       }),
     )
@@ -47,10 +41,10 @@ export default {
     }
   },
 
-  handle_position(editor, new_, before) {
+  handle_position(editor, new_, after) {
     var end = editor.getBuffer().rangeForRow(new_.row).end.column
     if (new_.column == end && editor.lineTextForBufferRow(new_.row)[end-1] == ';') {
-      if (before) {
+      if (!after) {
         editor.setCursorBufferPosition([new_.row, end-1])
       } else {
         editor.setCursorBufferPosition([new_.row+1, 0])
